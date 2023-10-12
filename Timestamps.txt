@@ -1,0 +1,33 @@
+Timestamps:
+00:00:00 - 00:26:40 Project Overview
+00:26:40 - 00:37:34 Software Design / Project Plan
+00:37:34 - 00:53:09 Technology brief //Which technology we will use and why we will use these technologies
+00:53:09 - 00:57:13 Code Editor overview
+00:57:13 - 01:04:21 Project server setup
+01:04:21 - 01:26:03 Database, Cloudinary, Redis connection 
+01:26:03 - 01:43:22 Handle Errors
+01:43:22 - 01:59:23 User model design
+01:59:23 - 02:34:21 User registration 
+02:34:21 - 02:46:15 User Activation
+02:46:15 - 03:12:02 User login, logout 
+03:12:02 - 03:23:34 User protected & Authorization middleware 
+03:23:34 - 03:49:16 Generate new Access token, user social authentication, get user info
+03:49:16 - 04:19:55 Update user info, password, avatar 
+04:19:55 - 04:38:23 Course Model design 
+04:38:23 - 04:57:12 Create course, Edit course [PROGRESS : 04:38:25]
+04:57:12 - 05:14:48 Get single and all courses  -- without purchasing
+05:14:48 - 05:25:20 Get course content,get user accessible all courses --- only for valid-user
+05:25:20 - 05:51:07 Create question, add reply in question
+05:51:07 - 06:14:48 add review in course
+06:14:48 - 06:22:08 Notification and Order model 
+06:22:08 - 06:47:38 Create Order
+06:47:38 - 07:07:40 Get all notifications, update notification status
+07:07:40 - 07:14:23 Delete read notifications -- with crone after a certain time
+07:14:23 - 07:23:38 Get all users, courses, orders
+07:23:38 - 07:28:45  Add and get members in Admin dashboard 
+07:28:45 - 07:38:16  Delete course, Delete user
+07:38:16 - 08:00:16 Get the last 28 days' users,orders, notifications for the last 1year 
+08:00:16 - 08:07:23 Layout model Design
+08:07:23 - 08:25:00 Create Faq,Hero banner,Categories
+08:25:00 - 08:39:20 Edit Faq,Hero banner,Categories
+08:39:20 - 08:55:00 Advance cache maintenance
