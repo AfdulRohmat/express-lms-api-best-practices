@@ -14,10 +14,10 @@ Timestamps:
 03:23:34 - 03:49:16 Generate new Access token, user social authentication, get user info
 03:49:16 - 04:19:55 Update user info, password, avatar 
 04:19:55 - 04:38:23 Course Model design 
-04:38:23 - 04:57:12 Create course, Edit course [PROGRESS : 04:38:25]
+04:38:23 - 04:57:12 Create course, Edit course
 04:57:12 - 05:14:48 Get single and all courses  -- without purchasing
 05:14:48 - 05:25:20 Get course content,get user accessible all courses --- only for valid-user
-05:25:20 - 05:51:07 Create question, add reply in question
+05:25:20 - 05:51:07 Create question, add reply in question [PROGRESS : 05:25:20]
 05:51:07 - 06:14:48 add review in course
 06:14:48 - 06:22:08 Notification and Order model 
 06:22:08 - 06:47:38 Create Order

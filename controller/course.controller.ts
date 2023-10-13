@@ -126,6 +126,30 @@ export const getAllCoursesWithoutPurchasingController = catchAsyncError(async (r
     }
 })
 
+// GET COURSE CONTENT ----- ONLY FOR VALID USER
+export const getCourseByUserController = catchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userCourseList = req.user?.courses
+        const courseId = req.params.id
+
+        const courseExists = userCourseList?.find((course: any) => course._id.toString() === courseId)
+
+        if (!courseExists) {
+            return next(new ErrorHandler("User cannot access this course", 400))
+        }
+
+        const course = await courserModel.findById(courseId);
+        const courseData = course?.courseData
+        res.status(201).json({
+            success: true,
+            data: courseData
+        })
+
+    } catch (error: any) {
+        return next(new ErrorHandler(error.message, 400))
+    }
+})
+
 // export const editCourseController = catchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
 //     try {
 
