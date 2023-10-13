@@ -51,7 +51,7 @@ export const registerUserController = catchAsyncError(async (req: Request, res: 
             res.status(200).json({
                 success: true,
                 message: `Please check yout email at ${user.email} to activate yout account`,
-                activationToken: activationToken.token
+                data: activationToken.token
             })
         } catch (error: any) {
             return next(new ErrorHandler(error.message, 400))
@@ -192,7 +192,7 @@ export const updateAccessTokenController = catchAsyncError(async (req: Request, 
 
         res.status(200).json({
             success: true,
-            accessToken
+            access_token: accessToken
         })
 
     } catch (error: any) {
@@ -210,7 +210,7 @@ export const getUserByIdController = catchAsyncError(async (req: Request, res: R
             const user = JSON.parse(userJSON)
             res.status(200).json({
                 success: true,
-                user
+                data: user
             })
         }
 
@@ -277,7 +277,7 @@ export const updateUserController = catchAsyncError(async (req: Request, res: Re
 
         res.status(201).json({
             success: true,
-            user
+            data: user
         })
     } catch (error: any) {
         return next(new ErrorHandler(error.message, 400))
@@ -317,7 +317,7 @@ export const updateUserPasswordController = catchAsyncError(async (req: Request,
         res.status(201).json({
             success: true,
             message: "Update Password Success",
-            user
+            data: user
         })
 
     } catch (error: any) {
@@ -370,7 +370,7 @@ export const updateProfilePictureController = catchAsyncError(async (req: Reques
         res.status(201).json({
             success: true,
             message: "Update Avatar Success",
-            user
+            data: user
         })
 
     } catch (error: any) {

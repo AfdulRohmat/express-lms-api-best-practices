@@ -73,7 +73,6 @@ const courseDataSchema = new Schema<CourseDataInterface>({
     title: String,
     description: String,
     videoUrl: String,
-    videoThumbnail: Object,
     videSection: String,
     videoLength: Number,
     videoPlayer: String,
@@ -99,11 +98,9 @@ const courseSchema = new Schema<CourseInterface>({
     thumbnail: {
         public_id: {
             type: String,
-            required: true
         },
         url: {
             type: String,
-            required: true
         }
     },
     tags: {
