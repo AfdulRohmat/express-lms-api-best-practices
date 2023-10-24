@@ -1,17 +1,18 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
+import { UserInterface } from "./user.model";
 
 
 interface CommentInterface extends Document {
-    user: object,
-    comment: string,
-    commentReplies?: CommentInterface[]
+    user: UserInterface,
+    question: string,
+    questionReplies?: CommentInterface[]
 }
 
 interface ReviewInterface extends Document {
-    user: object,
+    user: UserInterface,
     rating: number,
-    comment: string,
-    commentReplies: CommentInterface[]
+    review: string,
+    reviewReplies?: CommentInterface[]
 }
 
 interface LinkInterface extends Document {
@@ -55,7 +56,8 @@ const reviewSchema = new Schema<ReviewInterface>({
         type: Number,
         default: 0,
     },
-    comment: String
+    review: String,
+    reviewReplies: [Object]
 })
 
 const linkSchema = new Schema<LinkInterface>({
@@ -65,8 +67,8 @@ const linkSchema = new Schema<LinkInterface>({
 
 const commentSchema = new Schema<CommentInterface>({
     user: Object,
-    comment: String,
-    commentReplies: [Object]
+    question: String,
+    questionReplies: [Object]
 })
 
 const courseDataSchema = new Schema<CourseDataInterface>({
@@ -138,5 +140,5 @@ const courseSchema = new Schema<CourseInterface>({
 })
 
 
-const courserModel: Model<CourseInterface> = mongoose.model("Course", courseSchema)
-export default courserModel
+const CourserModel: Model<CourseInterface> = mongoose.model("Course", courseSchema)
+export default CourserModel

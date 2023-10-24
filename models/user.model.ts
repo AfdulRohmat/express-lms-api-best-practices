@@ -91,5 +91,5 @@ userSchema.methods.comparePassword = async function (hashedPassword: string): Pr
     return await bcrypt.compare(hashedPassword, this.password)
 }
 
-const userModel: Model<UserInterface> = mongoose.model("User", userSchema)
-export default userModel
+const UserModel: Model<UserInterface> = mongoose.model("User", userSchema)
+export default UserModel

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import userModel, { UserInterface } from "../models/user.model";
+import UserModel, { UserInterface } from "../models/user.model";
 import ErrorHandler from "../utils/ErrorHandler";
 import { catchAsyncError } from "../middleware/catchAsyncError";
 import jwt, { JwtPayload, Secret } from "jsonwebtoken"
@@ -26,7 +26,7 @@ export const registerUserController = catchAsyncError(async (req: Request, res: 
     try {
         const { name, email, password } = req.body
 
-        const isEmailExist = await userModel.findOne({ email })
+        const isEmailExist = await UserModel.findOne({ email })
         if (isEmailExist) {
             return next(new ErrorHandler("Email already registered", 400))
         }
@@ -92,12 +92,12 @@ export const activationUserController = catchAsyncError(async (req: Request, res
         }
 
         const { name, email, password } = newUser.user;
-        const existUser = await userModel.findOne({ email })
+        const existUser = await UserModel.findOne({ email })
         if (existUser) {
             return next(new ErrorHandler("Email already exist, please login", 400))
         }
 
-        await userModel.create({
+        await UserModel.create({
             name,
             email,
             password
@@ -125,7 +125,7 @@ export const loginUserController = catchAsyncError(async (req: Request, res: Res
             return next(new ErrorHandler("Please enter email and password", 400))
         }
 
-        const user = await userModel.findOne({ email }).select("+password")
+        const user = await UserModel.findOne({ email }).select("+password")
         if (!user) {
             return next(new ErrorHandler("Invalid email or password", 400))
         }
@@ -230,10 +230,10 @@ export const socialAuthController = catchAsyncError(async (req: Request, res: Re
     try {
         const { email, name, avatar } = req.body as SocialAuthInterface
 
-        const user = await userModel.findOne({ email })
+        const user = await UserModel.findOne({ email })
 
         if (!user) {
-            const newUser = await userModel.create({ email, name, avatar })
+            const newUser = await UserModel.create({ email, name, avatar })
             sendToken(newUser, 200, res)
         } else {
             sendToken(user, 200, res)
@@ -253,9 +253,9 @@ export const updateUserController = catchAsyncError(async (req: Request, res: Re
         const { email, name } = req.body as UpdateUserInterface
 
         const userId = req.user?._id
-        const user = await userModel.findById(userId)
+        const user = await UserModel.findById(userId)
         if (email && user) {
-            const isEmailExist = await userModel.findOne({ email })
+            const isEmailExist = await UserModel.findOne({ email })
             if (isEmailExist) {
                 return next(new ErrorHandler("Email already exist", 400))
             }
@@ -298,7 +298,7 @@ export const updateUserPasswordController = catchAsyncError(async (req: Request,
         }
 
         const userId = req.user?._id
-        const user = await userModel.findById(userId).select('+password');
+        const user = await UserModel.findById(userId).select('+password');
 
         if (user?.password === undefined) {
             return next(new ErrorHandler("Invalid user", 400))
@@ -333,7 +333,7 @@ export const updateProfilePictureController = catchAsyncError(async (req: Reques
     try {
         const { avatar } = req.body
         const userId = req.user?._id
-        const user = await userModel.findById(userId)
+        const user = await UserModel.findById(userId)
 
         if (avatar && user) {
             // if user already have avatar

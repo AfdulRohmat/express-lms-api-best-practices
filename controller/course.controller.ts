@@ -3,8 +3,12 @@ import ErrorHandler from "../utils/ErrorHandler";
 import { catchAsyncError } from "../middleware/catchAsyncError";
 import cloudinary from 'cloudinary';
 import { createCourseService } from "../services/course.services";
-import courserModel from "../models/course.model";
 import { redis } from "../utils/redis";
+import CourserModel from "../models/course.model";
+import mongoose from "mongoose";
+import path from "path";
+import ejs from 'ejs'
+import sendMail from "../utils/sendMail";
 
 // UPLOAD COURSE / CREATE COURSE
 export const uploadCourseController = catchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
@@ -49,7 +53,7 @@ export const editCourseController = catchAsyncError(async (req: Request, res: Re
             }
         }
 
-        const updateCourseById = await courserModel.findByIdAndUpdate(courseId,
+        const updateCourseById = await CourserModel.findByIdAndUpdate(courseId,
             {
                 $set: data,
             },
@@ -82,7 +86,7 @@ export const getSingleCourseWithoutPurchasingController = catchAsyncError(async 
                 data: course
             })
         } else {
-            const course = await courserModel.findById(courseId).select(
+            const course = await CourserModel.findById(courseId).select(
                 "-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links"
             );
 
@@ -111,7 +115,7 @@ export const getAllCoursesWithoutPurchasingController = catchAsyncError(async (r
                 data: courses
             })
         } else {
-            const courses = await courserModel.find().select("-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links")
+            const courses = await CourserModel.find().select("-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links")
 
             // save data to redis for chacing
             await redis.set("all_courses", JSON.stringify(courses))
@@ -130,7 +134,7 @@ export const getAllCoursesWithoutPurchasingController = catchAsyncError(async (r
 export const getCourseByUserController = catchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userCourseList = req.user?.courses
-        const courseId = req.params.id
+        const courseId = req.params.courseId
 
         const courseExists = userCourseList?.find((course: any) => course._id.toString() === courseId)
 
@@ -138,7 +142,7 @@ export const getCourseByUserController = catchAsyncError(async (req: Request, re
             return next(new ErrorHandler("User cannot access this course", 400))
         }
 
-        const course = await courserModel.findById(courseId);
+        const course = await CourserModel.findById(courseId);
         const courseData = course?.courseData
         res.status(201).json({
             success: true,
@@ -149,6 +153,219 @@ export const getCourseByUserController = catchAsyncError(async (req: Request, re
         return next(new ErrorHandler(error.message, 400))
     }
 })
+
+// ADD QUESTION DISCUSSION ON COURSE
+interface AddQuestionDataInterface {
+    question: string,
+    course_id: string,
+    content_id: string
+}
+export const addQuestionController = catchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { question, course_id, content_id }: AddQuestionDataInterface = req.body
+        const course = await CourserModel.findById(course_id)
+
+        if (!mongoose.Types.ObjectId.isValid(content_id)) {
+            return next(new ErrorHandler("Content id is not valid", 400))
+        }
+
+        const courseContent = course?.courseData?.find((item: any) => item._id.equals(content_id))
+        if (!courseContent) {
+            return next(new ErrorHandler("Content id is not valid", 400))
+        }
+
+        // create new question object
+        const newQuestion: any = {
+            user: req.user,
+            question,
+            questionReplies: []
+        }
+
+        // add this question to our course content/course data
+        courseContent.questions.push(newQuestion)
+
+        // save the updated course
+        await course?.save()
+
+        res.status(201).json({
+            success: true,
+            data: courseContent
+        })
+
+    } catch (error: any) {
+        return next(new ErrorHandler(error.message, 400))
+    }
+})
+
+// ADD REPLYING COURSE QUESTION
+interface ReplyCourseQuestionInterface {
+    reply: string,
+    course_id: string,
+    content_id: string,
+    question_id: string
+}
+export const replyCourseQuestionController = catchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { reply, course_id, content_id, question_id }: ReplyCourseQuestionInterface = req.body
+
+        const course = await CourserModel.findById(course_id)
+        if (!mongoose.Types.ObjectId.isValid(content_id)) {
+            return next(new ErrorHandler("Content id is not valid", 400))
+        }
+
+        // / search courseData with spesific id that want to reply
+        const courseContent = course?.courseData.find((courseData: any) => courseData._id.equals(content_id))
+        if (!courseContent) {
+            return next(new ErrorHandler("Content id is not valid", 400))
+        }
+
+        // search question with spesific id that want to reply
+        const question = courseContent?.questions.find((question) => question._id.equals(question_id))
+        if (!question) {
+            return next(new ErrorHandler("Question id is not valid", 400))
+        }
+
+        // create quetion object
+        const replyQuestion: any = {
+            user: req.user,
+            reply,
+        }
+
+        // Add reply to question
+        question.questionReplies?.push(replyQuestion)
+
+        await course?.save()
+
+        if (req.user?._id === question.user?._id) {
+            // if the user loing === questions owner, send notification
+        } else {
+            // Send Email to notify questions owner that the question has beed reply
+            const data = {
+                name: question.user.name,
+                title: courseContent.title,
+            }
+
+            const html = await ejs.renderFile(path.join(__dirname, "../mails/question-reply.ejs"), data)
+            try {
+                await sendMail({
+                    email: question.user.email,
+                    subject: "Question Reply",
+                    template: "question-reply.ejs",
+                    data
+                })
+            } catch (error: any) {
+                return next(new ErrorHandler(error.message, 400))
+            }
+        }
+
+        res.status(201).json({
+            success: true,
+            data: course
+        })
+
+    } catch (error: any) {
+        return next(new ErrorHandler(error.message, 400))
+    }
+})
+
+// ADD REVIEW IN COURSE
+interface AddReviewInterface {
+    review: string,
+    rating: number,
+    user_id: string
+}
+export const addReviewController = catchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const userCourseList = req.user?.courses
+
+        const courseId = req.params.courseId
+
+        // check if courseId already exist in userCourseList based on _id
+        const courseExist = userCourseList?.some((item: any) => item._id.toString() === courseId.toString())
+        if (!courseExist) {
+            return next(new ErrorHandler("Cant access this course", 400))
+        }
+
+        const course = await CourserModel.findById(courseId)
+        const { review, rating }: AddReviewInterface = req.body
+        const reviewObject: any = {
+            user: req.user,
+            review,
+            rating
+        }
+
+        course?.reviews.push(reviewObject)
+
+        // Calculate Rating
+        let avgRating = 0;
+        course?.reviews.forEach((item: any) => {
+            avgRating += item.rating
+        })
+
+        if (course) {
+            course.ratings = avgRating / course?.reviews.length
+        }
+
+        await course?.save()
+
+        // Send Notification to course owner
+        const notification = {
+            title: "New Review Received",
+            message: `${req.user?.name} has given a review on your course in ${course?.name}`
+        }
+
+        // create notification [LATER]
+
+        res.status(201).json({
+            success: true,
+            data: course
+        })
+    } catch (error: any) {
+        return next(new ErrorHandler(error.message, 400))
+    }
+})
+
+// REPLY THE REVIEW -- ONLY ADMIN CAN REPLY THE REVIEW
+interface AddReplyToReviewInterface {
+    comment: string,
+    course_id: string,
+    review_id: string
+}
+export const addReplyToReviewController = catchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { comment, course_id, review_id }: AddReplyToReviewInterface = req.body
+        const course = await CourserModel.findById(course_id)
+        if (!course) {
+            return next(new ErrorHandler("Course not found", 400))
+        }
+
+        const review = course.reviews.find((item: any) => item._id.toString() === review_id)
+        if (!review) {
+            return next(new ErrorHandler("Review not found", 400))
+        }
+
+        const replyToReview: any = {
+            user: req.user,
+            comment
+        }
+
+        review.reviewReplies?.push(replyToReview)
+        await course.save()
+
+        res.status(201).json({
+            success: true,
+            data: course
+        })
+    } catch (error: any) {
+        return next(new ErrorHandler(error.message, 400))
+    }
+})
+
+
+
+
+
+
 
 // export const editCourseController = catchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
 //     try {
