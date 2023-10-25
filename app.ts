@@ -5,6 +5,7 @@ import { errorMiddleware } from './middleware/error';
 import dotenv from 'dotenv';
 import userRouter from './routes/user.route';
 import courseRouter from './routes/course.route';
+import orderRouter from './routes/order.route';
 
 dotenv.config();
 
@@ -22,8 +23,8 @@ app.use(cors({
 }))
 
 // Routes
-app.use("/api/v1", userRouter)
-app.use("/api/v1", courseRouter)
+app.use("/api/v1", userRouter, courseRouter, orderRouter)
+
 
 // error Middleware
 app.use(errorMiddleware)

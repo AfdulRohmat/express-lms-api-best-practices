@@ -51,7 +51,7 @@ export const registerUserController = catchAsyncError(async (req: Request, res: 
             res.status(200).json({
                 success: true,
                 message: `Please check yout email at ${user.email} to activate yout account`,
-                data: activationToken.token
+                activation_token: activationToken.token
             })
         } catch (error: any) {
             return next(new ErrorHandler(error.message, 400))
@@ -205,14 +205,20 @@ export const getUserByIdController = catchAsyncError(async (req: Request, res: R
     try {
         const userId = req.user?._id;
         const userJSON = await redis.get(userId)
+        const user = await UserModel.findById(userId)
 
-        if (userJSON) {
-            const user = JSON.parse(userJSON)
-            res.status(200).json({
-                success: true,
-                data: user
-            })
-        }
+        res.status(200).json({
+            success: true,
+            data: user
+        })
+        
+        // if (userJSON) {
+        //     const user = JSON.parse(userJSON)
+        //     res.status(200).json({
+        //         success: true,
+        //         data: user
+        //     })
+        // }
 
     } catch (error: any) {
         return next(new ErrorHandler(error.message, 400))

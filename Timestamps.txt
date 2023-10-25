@@ -17,11 +17,11 @@ Timestamps:
 04:38:23 - 04:57:12 Create course, Edit course
 04:57:12 - 05:14:48 Get single and all courses  -- without purchasing
 05:14:48 - 05:25:20 Get course content,get user accessible all courses --- only for valid-user
-05:25:20 - 05:51:07 Create question, add reply in question [PROGRESS : 05:25:20]
+05:25:20 - 05:51:07 Create question, add reply in question 
 05:51:07 - 06:14:48 add review in course
 06:14:48 - 06:22:08 Notification and Order model 
 06:22:08 - 06:47:38 Create Order
-06:47:38 - 07:07:40 Get all notifications, update notification status
+06:47:38 - 07:07:40 Get all notifications, update notification status [PROGRESS : 06:47:45]
 07:07:40 - 07:14:23 Delete read notifications -- with crone after a certain time
 07:14:23 - 07:23:38 Get all users, courses, orders
 07:23:38 - 07:28:45  Add and get members in Admin dashboard 
