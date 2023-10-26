@@ -10,6 +10,7 @@ import ejs from 'ejs'
 import sendMail from "../utils/sendMail";
 import NotificationModel from "../models/notification.model";
 import { createOrderService } from "../services/order.services";
+import { redis } from "../utils/redis";
 
 
 //  CREATE ORDER
@@ -82,6 +83,9 @@ export const createOrderController = catchAsyncError(async (req: Request, res: R
         // Update Purchased value on Course
         course.purchased ? course.purchased += 1 : course.purchased
         await course.save()
+
+        // Update Redis
+        await redis.set(user?._id, JSON.stringify(user));
 
         // Create Order
         createOrderService(orderData, res, next)

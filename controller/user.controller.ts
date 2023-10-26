@@ -207,18 +207,18 @@ export const getUserByIdController = catchAsyncError(async (req: Request, res: R
         const userJSON = await redis.get(userId)
         const user = await UserModel.findById(userId)
 
-        res.status(200).json({
-            success: true,
-            data: user
-        })
-        
-        // if (userJSON) {
-        //     const user = JSON.parse(userJSON)
-        //     res.status(200).json({
-        //         success: true,
-        //         data: user
-        //     })
-        // }
+        // res.status(200).json({
+        //     success: true,
+        //     data: user
+        // })
+
+        if (userJSON) {
+            const user = JSON.parse(userJSON)
+            res.status(200).json({
+                success: true,
+                data: user
+            })
+        }
 
     } catch (error: any) {
         return next(new ErrorHandler(error.message, 400))

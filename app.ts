@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import userRouter from './routes/user.route';
 import courseRouter from './routes/course.route';
 import orderRouter from './routes/order.route';
+import notificationRouter from './routes/notification.route';
 
 dotenv.config();
 
@@ -23,7 +24,7 @@ app.use(cors({
 }))
 
 // Routes
-app.use("/api/v1", userRouter, courseRouter, orderRouter)
+app.use("/api/v1", userRouter, courseRouter, orderRouter, notificationRouter,)
 
 
 // error Middleware

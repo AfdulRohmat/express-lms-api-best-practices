@@ -9,6 +9,8 @@ import mongoose from "mongoose";
 import path from "path";
 import ejs from 'ejs'
 import sendMail from "../utils/sendMail";
+import NotificationModel from "../models/notification.model";
+import UserModel from "../models/user.model";
 
 // UPLOAD COURSE / CREATE COURSE
 export const uploadCourseController = catchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
@@ -136,7 +138,7 @@ export const getCourseByUserController = catchAsyncError(async (req: Request, re
         const userCourseList = req.user?.courses
         const courseId = req.params.courseId
 
-        const courseExists = userCourseList?.find((course: any) => course._id.toString() === courseId)
+        const courseExists = userCourseList?.find((course: any) => course._id.toString() === courseId.toString())
 
         if (!courseExists) {
             return next(new ErrorHandler("User cannot access this course", 400))
@@ -164,9 +166,18 @@ export const addQuestionController = catchAsyncError(async (req: Request, res: R
     try {
         const { question, course_id, content_id }: AddQuestionDataInterface = req.body
         const course = await CourserModel.findById(course_id)
+        const user = await UserModel.findById(req.user?._id)
+
+        if (!course) {
+            return next(new ErrorHandler("Course id is not valid", 400))
+        }
 
         if (!mongoose.Types.ObjectId.isValid(content_id)) {
             return next(new ErrorHandler("Content id is not valid", 400))
+        }
+
+        if (!user) {
+            return next(new ErrorHandler("User not found", 400))
         }
 
         const courseContent = course?.courseData?.find((item: any) => item._id.equals(content_id))
@@ -186,6 +197,13 @@ export const addQuestionController = catchAsyncError(async (req: Request, res: R
 
         // save the updated course
         await course?.save()
+
+        // Send Notification order to Admin 
+        await NotificationModel.create({
+            userId: user._id,
+            title: "New Question Received",
+            message: `New Question was Added. The Video : ${courseContent.title} have one question added by ${user.name}`
+        })
 
         res.status(201).json({
             success: true,
@@ -237,7 +255,13 @@ export const replyCourseQuestionController = catchAsyncError(async (req: Request
         await course?.save()
 
         if (req.user?._id === question.user?._id) {
-            // if the user loing === questions owner, send notification
+            // if the user login === questions owner, send notification
+            await NotificationModel.create({
+                userId: req.user?._id,
+                title: "New Question Reply Received",
+                message: `New Question reply was received. The Video : ${courseContent.title} have one question reply by ${req.user?.name}`
+            })
+
         } else {
             // Send Email to notify questions owner that the question has beed reply
             const data = {
