@@ -137,7 +137,7 @@ const courseSchema = new Schema<CourseInterface>({
         type: Number,
         default: 0
     }
-})
+}, { timestamps: true })
 
 
 const CourserModel: Model<CourseInterface> = mongoose.model("Course", courseSchema)
