@@ -9,7 +9,7 @@ import path from "path";
 import ejs from 'ejs'
 import sendMail from "../utils/sendMail";
 import NotificationModel from "../models/notification.model";
-import { createOrderService } from "../services/order.services";
+import { createOrderService, getAllOrderServices } from "../services/order.services";
 import { redis } from "../utils/redis";
 
 
@@ -90,6 +90,15 @@ export const createOrderController = catchAsyncError(async (req: Request, res: R
         // Create Order
         createOrderService(orderData, res, next)
 
+    } catch (error: any) {
+        return next(new ErrorHandler(error.message, 400))
+    }
+})
+
+// GET ALL ORDERS --- Only Admin
+export const getAllOrdersController = catchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        getAllOrderServices(res);
     } catch (error: any) {
         return next(new ErrorHandler(error.message, 400))
     }

@@ -10,6 +10,7 @@ import { accessTokenOptions, refreshTokenOptions, sendToken } from "../utils/jwt
 import dotenv from 'dotenv';
 import { redis } from "../utils/redis";
 import cloudinary from 'cloudinary';
+import { getAllUserServices, getUserByIdServices, updateUserRoleServices } from "../services/user.services";
 
 
 dotenv.config();
@@ -204,7 +205,6 @@ export const updateAccessTokenController = catchAsyncError(async (req: Request, 
 export const getUserByIdController = catchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = req.user?._id;
-        const userJSON = await redis.get(userId)
         const user = await UserModel.findById(userId)
 
         // res.status(200).json({
@@ -212,14 +212,7 @@ export const getUserByIdController = catchAsyncError(async (req: Request, res: R
         //     data: user
         // })
 
-        if (userJSON) {
-            const user = JSON.parse(userJSON)
-            res.status(200).json({
-                success: true,
-                data: user
-            })
-        }
-
+        getUserByIdServices(userId, res)
     } catch (error: any) {
         return next(new ErrorHandler(error.message, 400))
     }
@@ -377,6 +370,56 @@ export const updateProfilePictureController = catchAsyncError(async (req: Reques
             success: true,
             message: "Update Avatar Success",
             data: user
+        })
+
+    } catch (error: any) {
+        return next(new ErrorHandler(error.message, 400))
+    }
+})
+
+
+// GET ALL USERS --- Only Admin
+export const getAllUsersController = catchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        getAllUserServices(res);
+    } catch (error: any) {
+        return next(new ErrorHandler(error.message, 400))
+    }
+})
+
+// UPDATE USER ROLE --- Only Admin
+export const updateUserRoleController = catchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { user_id, role } = req.body
+
+        const user = await UserModel.findById(user_id)
+        if (!user) {
+            return next(new ErrorHandler("User not found!", 400))
+        }
+
+        updateUserRoleServices(res, user_id, role)
+    } catch (error: any) {
+        return next(new ErrorHandler(error.message, 400))
+    }
+})
+
+// DELETE USER --- Only Admin
+export const deleteUserController = catchAsyncError(async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const id = req.params.userId
+
+        const user = await UserModel.findById(id)
+        if (!user) {
+            return next(new ErrorHandler("User not found!", 400))
+        }
+
+        await user.deleteOne({ _id: id })
+        await redis.del(id)
+
+        res.status(201).json({
+            success: true,
+            message: "User Deleted Successfully",
+            data: []
         })
 
     } catch (error: any) {

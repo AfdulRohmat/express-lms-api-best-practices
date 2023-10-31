@@ -4,7 +4,7 @@ import { getAllNotificationController, updateNotificationStatusController } from
 
 const notificationRouter = express.Router()
 
-notificationRouter.get('/get-all-notifications', isAuthenticated, authorizeRole('admin'), getAllNotificationController)
-notificationRouter.put('/update-notification-status/:notificationId', isAuthenticated, authorizeRole('admin'), updateNotificationStatusController)
+notificationRouter.get('/notifications', isAuthenticated, authorizeRole('admin'), getAllNotificationController)
+notificationRouter.put('/notification-status/:notificationId', isAuthenticated, authorizeRole('admin'), updateNotificationStatusController)
 
 export default notificationRouter;

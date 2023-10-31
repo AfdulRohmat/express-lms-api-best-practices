@@ -12,6 +12,16 @@ export const createCourseService = catchAsyncError(async (data: any, res: Respon
    })
 })
 
+// GET ALL COURSES
+export const getAllCoursesServices = async (res: Response) => {
+   const courses = await CourserModel.find().sort({ createdAt: -1 })
+   
+   res.status(200).json({
+       success: true,
+       data: courses
+   })
+}
+
 
 
 
