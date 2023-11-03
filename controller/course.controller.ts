@@ -93,7 +93,7 @@ export const getSingleCourseWithoutPurchasingController = catchAsyncError(async 
             );
 
             // save data to redis for chacing
-            await redis.set(courseId, JSON.stringify(course))
+            await redis.set(courseId, JSON.stringify(course), 'EX', 604800) // will removed after 7 days
 
             res.status(201).json({
                 success: true,

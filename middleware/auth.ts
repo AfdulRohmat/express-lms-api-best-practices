@@ -21,7 +21,7 @@ export const isAuthenticated = catchAsyncError(async (req: Request, res: Respons
 
     const user = await redis.get(decoded.id)
     if (!user) {
-        return next(new ErrorHandler("User not found", 400))
+        return next(new ErrorHandler("Please login first", 400))
     }
 
     // Before it, req.user is invalid typescript type. To solve this, create custom declare in @types folder
