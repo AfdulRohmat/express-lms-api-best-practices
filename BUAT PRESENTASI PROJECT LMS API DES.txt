@@ -1,0 +1,7 @@
+BUAT PRESENTASI PROJECT LMS API DESIGN SYSTEM : 
+- Menjelaskan Requirements
+- Menjelaskan Fitur Fitur utama
+- Breakdown api per fitur (auth, order, user, dll)
+- Database Data Collection
+- Diagram sistem
+- Dokumentasi API

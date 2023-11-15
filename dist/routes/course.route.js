@@ -1,0 +1,21 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const auth_1 = require("../middleware/auth");
+const course_controller_1 = require("../controller/course.controller");
+const courseRouter = express_1.default.Router();
+courseRouter.post('/course', auth_1.isAuthenticated, (0, auth_1.authorizeRole)("admin"), course_controller_1.uploadCourseController);
+courseRouter.put('/course/:id', auth_1.isAuthenticated, (0, auth_1.authorizeRole)("admin"), course_controller_1.editCourseController);
+courseRouter.get('/course/:id', course_controller_1.getSingleCourseWithoutPurchasingController);
+courseRouter.get('/courses/all', course_controller_1.getAllCoursesWithoutPurchasingController);
+courseRouter.get('/course-content/:courseId', auth_1.isAuthenticated, course_controller_1.getCourseByUserController);
+courseRouter.put('/question', auth_1.isAuthenticated, course_controller_1.addQuestionController);
+courseRouter.put('/reply-question', auth_1.isAuthenticated, course_controller_1.replyCourseQuestionController);
+courseRouter.put('/review/:courseId', auth_1.isAuthenticated, course_controller_1.addReviewController);
+courseRouter.put('/reply-review', auth_1.isAuthenticated, (0, auth_1.authorizeRole)("admin"), course_controller_1.addReplyToReviewController);
+courseRouter.get('/courses', auth_1.isAuthenticated, (0, auth_1.authorizeRole)("admin"), course_controller_1.getAllCoursesController);
+courseRouter.delete('/course/:courseId', auth_1.isAuthenticated, (0, auth_1.authorizeRole)("admin"), course_controller_1.deleteCourseController);
+exports.default = courseRouter;
