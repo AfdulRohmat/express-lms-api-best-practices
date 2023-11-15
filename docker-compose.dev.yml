@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  mongo_db:
+    container_name: db_container
+    image: mongo:latest
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - mongoDB:/data/db
+
+  #node api service
+  api:
+    build:
+      context: .
+      target: development
+    volumes:
+      - ./:/usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - 8000:8000
+    depends_on:
+      - mongo_db
+    environment:
+      PORT: 8000
+      MONGO_DB_URL: mongodb://mongo_db:27017
+      DB_NAME: learning-management-system
+    command: npm run dev
+
+volumes:
+  mongoDB: {}
