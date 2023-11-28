@@ -30,12 +30,12 @@ export const updateNotificationStatusController = catchAsyncError(async (req: Re
         notification.status ? notification.status = 'read' : notification.status
         await notification.save()
 
-        const allNotifications = await NotificationModel.find().sort({ createdAt: -1 })
+        // const allNotifications = await NotificationModel.find().sort({ createdAt: -1 })
 
         res.status(201).json({
             success: true,
             message: "Success update status",
-            data: allNotifications
+            data: notification
         })
     } catch (error: any) {
         return next(new ErrorHandler(error.message, 400))
